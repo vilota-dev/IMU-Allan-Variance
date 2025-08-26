@@ -1,0 +1,8 @@
+=================================================
+### Continuous-time Allan variance coefficients
+Quantization Noise (Q): 7.94996e-06 m / s
+White Veloc. Noise (N): 0.00100268 m / s / sqrt(s)        # Kalibr: σ_a, Accelerometer "white noise", accelerometer_noise_density
+Bias Instability   (B): 0.000551113 m / s^2
+Accel. Random Walk (K): 7.43197e-05 m / (s^2 * sqrt(s))  # Kalibr: σ_{ba}, Accelerometer "random walk", accelerometer_random_walk
+Acceleration Ramp  (R): 2.55548e-06 m / s^3
+=================================================

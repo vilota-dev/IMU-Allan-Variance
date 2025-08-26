@@ -1,7 +1,11 @@
 #include "fitallan_gyr.h"
 
 using namespace imu;
+#include <iostream>
+#include <fstream>
+#include <string>
 
+static int test=0;
 FitAllanGyr::FitAllanGyr(std::vector<double> sigma2s, std::vector<double> taus,
                          double freq)
     : C_Q_(0.0), C_N_(0.0), C_B_(0.0), C_K_(0.0), C_R_(0.0), freq_(freq) {
@@ -11,6 +15,13 @@ FitAllanGyr::FitAllanGyr(std::vector<double> sigma2s, std::vector<double> taus,
   m_taus = taus;
 
   std::vector<double> init = initValue(sigma2s, taus);
+   std::string filename = "../data/gyrocurve_" + std::to_string(test) + ".txt";
+   std::ofstream outfile(filename);
+   //std::ofstream outfile("../data/acccurve_+"test".txt");
+     if (!outfile.is_open()) {
+         std::cerr << "Failed to open output file!" << std::endl;
+         //return -1;
+    }
 
   int num_samples = sigma2s.size();
   double param[] = {init[0], init[1], init[2], init[3], init[4]};
@@ -69,6 +80,23 @@ FitAllanGyr::FitAllanGyr(std::vector<double> sigma2s, std::vector<double> taus,
   std::cout << "Angle Rate Ramp    (R): " << getR() << R"( rad / s^2)"
             << std::endl;
   std::cout << "=================================================" << std::endl;
+      outfile << "=================================================" << std::endl;
+    outfile << "### Continuous-time Allan variance coefficients" << std::endl;
+     outfile << "Quantization Noise (Q): " << getQ() << " rad" << std::endl;
+    outfile << "White Veloc. Noise (N): " << getN()
+            << " rad / sqrt(s)        # Kalibr: σ_a, Accelerometer \"white noise\", accelerometer_noise_density"
+            << std::endl;
+    outfile << "Bias Instability   (B): " << getB() << " rad /s^2" << std::endl;
+    outfile << "Accel. Random Walk (K): " << getK()
+            << " rad / (s^2 * sqrt(s))  # Kalibr: σ_{ba}, Accelerometer \"random walk\", accelerometer_random_walk"
+            << std::endl;
+    outfile << "Acceleration Ramp  (R): " << getR() << " rad / s^3" << std::endl;
+    outfile << "=================================================" << std::endl;
+
+    outfile.close();
+    test++;
+    std::cout << "Allan variance data saved to ../../data/gyrocurve.txt" << std::endl;
+
 }
 
 std::vector<double> FitAllanGyr::initValue(std::vector<double> sigma2s,

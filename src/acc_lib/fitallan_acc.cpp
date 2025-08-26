@@ -1,13 +1,22 @@
 #include "fitallan_acc.h"
+#include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace imu;
-
+static int test=0;
 FitAllanAcc::FitAllanAcc(std::vector<double> sigma2s, std::vector<double> taus,
                          double freq)
     : C_Q_(0.0), C_N_(0.0), C_B_(0.0), C_K_(0.0), C_R_(0.0), freq_(freq) {
   if (sigma2s.size() != taus.size())
     std::cerr << "Error of point size" << std::endl;
-
+    std::string filename = "../data/acccurve_" + std::to_string(test) + ".txt";
+    std::ofstream outfile(filename);
+  //std::ofstream outfile("../data/acccurve_+"test".txt");
+     if (!outfile.is_open()) {
+        std::cerr << "Failed to open output file!" << std::endl;
+        //return -1;
+    }
   std::vector<double> sigma2s_tmp = checkData(sigma2s, taus);
 
   std::vector<double> init = initValue(sigma2s_tmp, m_taus);
@@ -69,6 +78,22 @@ FitAllanAcc::FitAllanAcc(std::vector<double> sigma2s, std::vector<double> taus,
   std::cout << "Acceleration Ramp  (R): " << getR() << R"( m / s^3)"
             << std::endl;
   std::cout << "=================================================" << std::endl;
+    outfile << "=================================================" << std::endl;
+    outfile << "### Continuous-time Allan variance coefficients" << std::endl;
+    outfile << "Quantization Noise (Q): " << getQ() << " m / s" << std::endl;
+    outfile << "White Veloc. Noise (N): " << getN()
+            << " m / s / sqrt(s)        # Kalibr: σ_a, Accelerometer \"white noise\", accelerometer_noise_density"
+            << std::endl;
+    outfile << "Bias Instability   (B): " << getB() << " m / s^2" << std::endl;
+    outfile << "Accel. Random Walk (K): " << getK()
+            << " m / (s^2 * sqrt(s))  # Kalibr: σ_{ba}, Accelerometer \"random walk\", accelerometer_random_walk"
+            << std::endl;
+    outfile << "Acceleration Ramp  (R): " << getR() << " m / s^3" << std::endl;
+    outfile << "=================================================" << std::endl;
+
+    outfile.close();
+    test++;
+    std::cout << "Allan variance data saved to ../../data/acc.curve.txt" << std::endl;
 }
 
 std::vector<double> FitAllanAcc::initValue(std::vector<double> sigma2s,
